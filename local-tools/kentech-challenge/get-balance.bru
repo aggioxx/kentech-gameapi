@@ -1,0 +1,15 @@
+meta {
+  name: get-balance
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8080/api/player/balance
+  body: none
+  auth: inherit
+}
+
+headers {
+  ~Authorization: Bearer 
+}

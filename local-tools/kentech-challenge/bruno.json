@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "kentech-challenge",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

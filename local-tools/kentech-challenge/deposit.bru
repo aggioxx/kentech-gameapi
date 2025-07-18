@@ -1,0 +1,22 @@
+meta {
+  name: deposit
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/api/transactions/deposit
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  ~Authorization: Bearer
+}
+
+body:json {
+  {
+    "amount": 100
+  }
+}

@@ -1,0 +1,19 @@
+meta {
+  name: get-user
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/api/player/profile
+  body: none
+  auth: bearer
+}
+
+headers {
+  ~Authorization: Bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTI3NTk5OTEsInN1YiI6InRlc3RfdXNlciJ9.aCApiCTK_mj0C6kll2LQaZ8WQ5u77I2rWqoDNzVzntg
+}

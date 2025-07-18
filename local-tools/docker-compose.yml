@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: kentech_db
+      POSTGRES_USER: kentech_user
+      POSTGRES_PASSWORD: kentech_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+#  app:
+#    build: ../app
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      DATABASE_URL: postgres://kentech_user:kentech_password@postgres:5432/kentech_db?sslmode=disable
+#      JWT_SECRET: Wj9QhLqMUPAHSNMxeT2o
+#      LOG_LEVEL: debug
+#      WALLET_URL: http://wallet:9090
+#    depends_on:
+#      - postgres
+
+  wallet:
+    image: docker.io/kentechsp/wallet-client
+    ports:
+      - "9090:8000"
+volumes:
+  postgres_data:

@@ -1,0 +1,22 @@
+meta {
+  name: withdraw
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/transactions/withdraw
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  ~Authorization: Bearer XXX
+}
+
+body:json {
+  {
+    "amount": 50
+  }
+}
