@@ -35,7 +35,14 @@ func (h *TransactionHandler) DepositGin(c *gin.Context) {
 	}
 	h.logger.Infof("Processing deposit: user_id=%s, amount=%f", userID.String(), req.Amount)
 
-	response, err := h.transactionService.Deposit(c.Request.Context(), userID, req.Amount)
+	response, err := h.transactionService.Deposit(
+		c.Request.Context(),
+		userID,
+		req.Currency,
+		req.Amount,
+		req.ProviderTransactionID,
+		req.ProviderWithdrawnID,
+	)
 	if err != nil {
 		if errors.Is(err, model.ErrInvalidAmount) {
 			h.logger.Warnf("Invalid deposit amount: %f", req.Amount)
@@ -62,7 +69,13 @@ func (h *TransactionHandler) WithdrawGin(c *gin.Context) {
 	}
 	h.logger.Infof("Processing withdraw: user_id=%s, amount=%f", userID.String(), req.Amount)
 
-	response, err := h.transactionService.Withdraw(c.Request.Context(), userID, req.Amount)
+	response, err := h.transactionService.Withdraw(
+		c.Request.Context(),
+		userID,
+		req.Currency,
+		req.Amount,
+		req.ProviderTransactionID,
+	)
 	if err != nil {
 		switch err {
 		case model.ErrInvalidAmount:
@@ -94,7 +107,7 @@ func (h *TransactionHandler) CancelGin(c *gin.Context) {
 	}
 	h.logger.Infof("Processing cancel: user_id=%s, transaction_id=%s", userID.String(), transactionID.String())
 
-	err = h.transactionService.CancelTransaction(c.Request.Context(), userID, transactionID)
+	response, err := h.transactionService.CancelTransaction(c.Request.Context(), userID, transactionID)
 	if err != nil {
 		switch err {
 		case model.ErrTransactionNotFound:
@@ -114,5 +127,5 @@ func (h *TransactionHandler) CancelGin(c *gin.Context) {
 	}
 
 	h.logger.Info("Transaction canceled successfully")
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, response)
 }

@@ -14,7 +14,7 @@ import (
 	"kentech-project/pkg/config"
 	"kentech-project/pkg/database"
 	"kentech-project/pkg/logger"
-	"kentech-project/pkg/tracing"
+	"kentech-project/pkg/trace"
 )
 
 func main() {
@@ -38,9 +38,9 @@ func main() {
 		}
 	}(db)
 
-	shutdown, err := tracing.InitTracer("kentech-project")
+	shutdown, err := trace.InitTracer("kentech-project")
 	if err != nil {
-		log.Fatalf("Failed to initialize tracing: %v", err)
+		log.Fatalf("Failed to initialize trace: %v", err)
 	}
 	defer shutdown(context.Background())
 

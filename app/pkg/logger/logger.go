@@ -30,7 +30,7 @@ func New() *Logger {
 
 	cfg := zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(level)
-	logger, _ := cfg.Build()
+	logger, _ := cfg.Build(zap.AddCaller(), zap.AddCallerSkip(1))
 	return &Logger{
 		sugar: logger.Sugar(),
 	}

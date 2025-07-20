@@ -33,7 +33,7 @@ type Server struct {
 func NewServer(cfg *config.Config, db *sql.DB, log *logger.Logger) *Server {
 	userRepo := postgres.NewUserRepository(db, log)
 	txRepo := postgres.NewTransactionRepository(db, log)
-	walletClient := wallet.NewWalletClient(cfg.WalletURL, log)
+	walletClient := wallet.NewWalletClient(cfg.WalletURL, log, cfg.WalletAPIKey)
 	jwtService := auth.NewJWTService(cfg.JWTSecret, log)
 
 	authService := service2.NewAuthService(userRepo, jwtService, log)

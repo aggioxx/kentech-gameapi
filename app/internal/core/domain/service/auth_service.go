@@ -7,7 +7,20 @@ import (
 	"kentech-project/internal/core/port"
 	"kentech-project/pkg/logger"
 	"kentech-project/pkg/security"
+	"sync"
 )
+
+var walletIDMutex sync.Mutex
+var walletIDIndex int
+
+// as the provided wallet does not support creating new users,
+// we will use existing user IDs for testing purposes
+var walletUserIDs = []int{
+	34633089486, // USD
+	34679664254, // EUR
+	34616761765, // KES
+	34673635133, // USD
+}
 
 type AuthService struct {
 	userRepo   port.UserRepository
@@ -42,10 +55,16 @@ func (s *AuthService) Register(ctx context.Context, req model.CreateUserRequest)
 		return nil, err
 	}
 
+	walletIDMutex.Lock()
+	assignedWalletID := walletUserIDs[walletIDIndex%len(walletUserIDs)]
+	walletIDIndex++
+	walletIDMutex.Unlock()
+
 	user := &model.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: hashedPassword,
+		Username:     req.Username,
+		Email:        req.Email,
+		Password:     hashedPassword,
+		WalletUserID: assignedWalletID,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

@@ -34,9 +34,16 @@ type Transaction struct {
 }
 
 type TransactionRequest struct {
-	Amount float64 `json:"amount"`
+	Currency              string  `json:"currency"`
+	Amount                float64 `json:"amount"`
+	ProviderTransactionID string  `json:"provider_transaction_id"`
+	ProviderWithdrawnID   string  `json:"provider_withdrawn_id,omitempty"` // Only for deposit
 }
+
 type TransactionResponse struct {
-	Transaction Transaction `json:"transaction"`
-	Balance     float64     `json:"balance"`
+	TransactionID         string  `json:"transaction_id"`
+	ProviderTransactionID string  `json:"provider_transaction_id"`
+	OldBalance            float64 `json:"old_balance"`
+	NewBalance            float64 `json:"new_balance"`
+	Status                string  `json:"status"` // WON/LOST for deposit, COMPLETED for withdraw
 }

@@ -26,9 +26,9 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	r.logger.Debug("Creating new user")
 
 	query := `
-  INSERT INTO users (id, username, email, password, balance, created_at, updated_at)
-  VALUES ($1, $2, $3, $4, $5, $6, $7)
- `
+		INSERT INTO users (id, wallet_user_id, username, email, password, balance, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`
 
 	user.ID = uuid.New()
 	user.CreatedAt = time.Now()
@@ -36,7 +36,7 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	user.Balance = 0.0
 
 	_, err := r.db.ExecContext(ctx, query,
-		user.ID, user.Username, user.Email, user.Password,
+		user.ID, user.WalletUserID, user.Username, user.Email, user.Password,
 		user.Balance, user.CreatedAt, user.UpdatedAt)
 
 	if err != nil {
@@ -51,13 +51,13 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User
 	r.logger.Debugf("Fetching user by ID: %s", id.String())
 
 	query := `
-  SELECT id, username, email, password, balance, created_at, updated_at
-  FROM users WHERE id = $1
- `
+		SELECT id, wallet_user_id, username, email, password, balance, created_at, updated_at
+		FROM users WHERE id = $1
+	`
 
 	user := &model.User{}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Password,
+		&user.ID, &user.WalletUserID, &user.Username, &user.Email, &user.Password,
 		&user.Balance, &user.CreatedAt, &user.UpdatedAt)
 
 	if err == sql.ErrNoRows {
@@ -76,13 +76,13 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*m
 	r.logger.Debugf("Fetching user by username: %s", username)
 
 	query := `
-  SELECT id, username, email, password, balance, created_at, updated_at
-  FROM users WHERE username = $1
- `
+		SELECT id, wallet_user_id, username, email, password, balance, created_at, updated_at
+		FROM users WHERE username = $1
+	`
 
 	user := &model.User{}
 	err := r.db.QueryRowContext(ctx, query, username).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Password,
+		&user.ID, &user.WalletUserID, &user.Username, &user.Email, &user.Password,
 		&user.Balance, &user.CreatedAt, &user.UpdatedAt)
 
 	if err == sql.ErrNoRows {
@@ -101,12 +101,12 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 	r.logger.Debugf("Fetching user by email: %s", email)
 
 	query := `
-  SELECT id, username, email, password, balance, created_at, updated_at
-  FROM users WHERE email = $1
- `
+		SELECT id, wallet_user_id, username, email, password, balance, created_at, updated_at
+		FROM users WHERE email = $1
+	`
 	user := &model.User{}
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Password,
+		&user.ID, &user.WalletUserID, &user.Username, &user.Email, &user.Password,
 		&user.Balance, &user.CreatedAt, &user.UpdatedAt)
 
 	if err == sql.ErrNoRows {
@@ -124,14 +124,14 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	r.logger.Debugf("Updating user: id=%s", user.ID.String())
 	query := `
-  UPDATE users SET username = $2, email = $3, password = $4,
-  balance = $5, updated_at = $6 WHERE id = $1
- `
+		UPDATE users SET wallet_user_id = $2, username = $3, email = $4, password = $5,
+		balance = $6, updated_at = $7 WHERE id = $1
+	`
 
 	user.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
-		user.ID, user.Username, user.Email, user.Password,
+		user.ID, user.WalletUserID, user.Username, user.Email, user.Password,
 		user.Balance, user.UpdatedAt)
 
 	if err != nil {

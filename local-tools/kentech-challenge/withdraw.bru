@@ -1,22 +1,24 @@
 meta {
   name: withdraw
   type: http
-  seq: 4
+  seq: 7
 }
 
 post {
   url: http://localhost:8080/api/transactions/withdraw
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
+  Authorization: Bearer <YOUR_JWT_TOKEN>
   Content-Type: application/json
-  ~Authorization: Bearer XXX
 }
 
 body:json {
   {
-    "amount": 50
+    "currency": "USD",
+    "amount": 50.0,
+    "provider_transaction_id": "provider-tx-789"
   }
 }

@@ -1,26 +1,25 @@
 meta {
   name: deposit
   type: http
-  seq: 5
+  seq: 6
 }
 
 post {
   url: http://localhost:8080/api/transactions/deposit
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
+  Authorization: Bearer <YOUR_JWT_TOKEN>
   Content-Type: application/json
-  ~Authorization: Bearer
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjAwZmNlNTQtM2Q0NS00YTcyLWIzOGUtOGMwNjA0M2NmNGUxIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTMwMjI3NDgsImlhdCI6MTc1MjkzNjM0OH0.TADB7v19Yjsr1u-9OAc7-E1hR_1gE4-xCrXYZEm0cS4
 }
 
 body:json {
   {
-    "amount": 1000
+    "currency": "USD",
+    "amount": 100.0,
+    "provider_transaction_id": "provider-tx-123",
+    "provider_withdrawn_id": "provider-wd-456"
   }
 }

@@ -17,15 +17,26 @@ services:
       - "8080:8080"
     environment:
       DATABASE_URL: postgres://kentech_user:kentech_password@postgres:5432/kentech_db?sslmode=disable
-      JWT_SECRET: Wj9QhLqMUPAHSNMxeT2o
+      WALLET_TOKEN: Wj9QhLqMUPAHSNMxeT2o
+      JWT_SECRET: Qm1vZ3JkQ2h1bmt5U2VjdXJlU3VwZXJMb25nU3RyQW5kUmFuZG9tU3Ry
       LOG_LEVEL: debug
       WALLET_URL: http://wallet:9090
     depends_on:
       - postgres
+      - wallet
+      - jaeger
 
   wallet:
     image: docker.io/kentechsp/wallet-client
     ports:
       - "9090:8000"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
 volumes:
   postgres_data:
