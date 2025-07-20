@@ -12,6 +12,7 @@ type User struct {
 	Email        string    `json:"email"`
 	Password     string    `json:"-"` // Don't include in JSON responses
 	Balance      float64   `json:"balance"`
+	Currency     string    `json:"currency"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

@@ -23,6 +23,16 @@ func NewUserRepository(db *sql.DB, log *logger.Logger) *UserRepository {
 	}
 }
 
+func mapCurrency(walletUserID int) string {
+	currencyMap := map[int]string{
+		34633089486: "USD",
+		34679664254: "EUR",
+		34616761765: "KES",
+		34673635133: "USD",
+	}
+	return currencyMap[walletUserID]
+}
+
 func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	r.logger.Debug("Creating new user")
 
@@ -35,6 +45,7 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 	user.Balance = 0.0
+	user.Currency = mapCurrency(user.WalletUserID)
 
 	_, err := r.db.ExecContext(ctx, query,
 		user.ID, user.WalletUserID, user.Username, user.Email, user.Password,
@@ -73,6 +84,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User
 		r.logger.Error("Failed to fetch user: " + err.Error())
 		return nil, err
 	}
+	user.Currency = mapCurrency(user.WalletUserID)
 	r.logger.Infof("User fetched: id=%s, username=%s", user.ID.String(), user.Username)
 	return user, nil
 }
@@ -98,6 +110,7 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*m
 		r.logger.Error("Failed to fetch user by username: " + err.Error())
 		return nil, err
 	}
+	user.Currency = mapCurrency(user.WalletUserID)
 	r.logger.Infof("User fetched by username: id=%s, username=%s", user.ID.String(), user.Username)
 	return user, nil
 }
@@ -122,6 +135,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 		r.logger.Error("Failed to fetch user by email: " + err.Error())
 		return nil, err
 	}
+	user.Currency = mapCurrency(user.WalletUserID)
 	r.logger.Infof("User fetched by email: id=%s, email=%s", user.ID.String(), user.Email)
 	return user, nil
 }

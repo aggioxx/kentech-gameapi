@@ -2,6 +2,38 @@
 
 A robust backend API built with Go following hexagonal architecture principles.
 
+---
+
+## Local Tools & API Client Collections
+
+A `local-tools` folder is provided with useful resources for testing this API:
+- **Bruno API Client Collection**: Inside `local-tools/kentech-challenge`, you’ll find a collection for [Bruno](https://www.usebruno.com/). You can use this to quickly test all endpoints.
+- **Postman/Insomnia Export**: The Bruno collection is also exported as a JSON file for use with Postman or Insomnia.
+
+## How to Test
+
+
+1. Start all services:
+   ```bash
+   docker-compose up -d --build
+   ```
+   This will start:
+   - PostgreSQL database on port 5432
+   - The API server on port 8080
+   - Mock wallet service on port 9090
+   - Jaeger tracing on port 16686
+
+2. Use Bruno, Postman, or Insomnia to import the provided collection and test endpoints.
+
+3. Typical flow:
+   - **Register** a new user (`POST /api/auth/register`)
+   - **Login** (`POST /api/auth/login`) and copy the JWT token from the response
+   - For transaction and informational endpoints, **add the JWT token** to the `Authorization: Bearer <token>` header
+   - Test deposit, withdraw, and cancel endpoints
+   - Use informational endpoints to view user profile, balance, and transaction history
+
+---
+
 ## Features
 
 - **User Authentication**: JWT-based authentication with secure password hashing
@@ -56,41 +88,8 @@ This project follows hexagonal architecture (ports and adapters):
 ## Getting Started
 
 ### Prerequisites
-- Go 1.21+
+- Go 1.23+
 - Docker and Docker Compose
-
-### Running with Docker Compose
-
-1. Clone the repository
-2. Run the application:
-```bash
-docker-compose up --build
-```
-
-This will start:
-- PostgreSQL database on port 5432
-- The API server on port 8080
-- Mock wallet service on port 9090
-
-### Running Locally
-
-1. Install dependencies:
-```bash
-go mod tidy
-```
-
-2. Set environment variables:
-```bash
-export DATABASE_URL="postgres://kentech_user:kentech_password@localhost:5432/kentech_db?sslmode=disable"
-export JWT_SECRET="your-super-secret-jwt-key"
-export WALLET_URL="http://localhost:9090"
-export PORT="8080"
-```
-
-3. Run the application:
-```bash
-go run cmd/main.go
-```
 
 ## Environment Variables
 
@@ -98,6 +97,8 @@ go run cmd/main.go
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - JWT signing secret
 - `WALLET_URL` - Mock wallet service URL
+- `LOG_LEVEL` - Logging level (default: info)
+- `WALLET_API_KEY` - Api key for wallet service authentication`
 
 ## Testing the API
 
@@ -133,6 +134,7 @@ curl -X GET http://localhost:8080/api/player/balance \
 
 ### Users Table
 - `id` (UUID, Primary Key)
+- `wallet_user_id` (INT, Unique)
 - `username` (VARCHAR, Unique)
 - `email` (VARCHAR, Unique)
 - `password` (VARCHAR, Hashed)
@@ -170,8 +172,7 @@ curl -X GET http://localhost:8080/api/player/balance \
 
 - Add unit and integration tests
 - Implement rate limiting
-- Add API documentation with Swagger
-- Add logging middleware
-- Implement email verification
-- Add transaction webhooks
 - Performance monitoring
+
+## Disclaimer
+For personal issues, not everything was implemented as I want, I tried my best to implement the core functionality. The code is structured to allow easy addition of features and improvements in the future. Tracer was not fully implemented due to time constraints, and i didn't stressed all the edge scenarios so the code may have some bugs.

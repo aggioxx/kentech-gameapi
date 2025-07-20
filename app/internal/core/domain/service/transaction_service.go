@@ -85,10 +85,10 @@ func (s *TransactionService) Deposit(ctx context.Context, userID uuid.UUID, curr
 	walletResp, err := s.walletService.ProcessDeposit(ctx, walletUserID, amount, currency, 0, providerTxID)
 	if err != nil {
 		s.logger.Error("Wallet service deposit failed: " + err.Error())
-		err := s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
-		if err != nil {
+		err2 := s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
+		if err2 != nil {
 			s.logger.Error("Failed to update transaction status to failed: " + err.Error())
-			return nil, err
+			return nil, err2
 		}
 		return nil, err
 	}
