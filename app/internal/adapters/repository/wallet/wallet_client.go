@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"kentech-project/pkg/logger"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ import (
 type WalletClient struct {
 	baseURL    string
 	httpClient *http.Client
+	logger     *logger.Logger
 }
 
 type WalletRequest struct {
@@ -29,10 +31,11 @@ type WalletResponse struct {
 	Message   string `json:"message"`
 }
 
-func NewWalletClient(baseURL string) *WalletClient {
+func NewWalletClient(baseURL string, log *logger.Logger) *WalletClient {
 	return &WalletClient{
 		baseURL:    baseURL,
 		httpClient: &http.Client{},
+		logger:     log,
 	}
 }
 
