@@ -56,9 +56,8 @@ This project follows hexagonal architecture (ports and adapters):
 │   │   ├── repository/         // Data persistence adapters
 │   │   └── auth/              // JWT authentication
 │   └── core/
-│       ├── domain/            // Business entities
+│       ├── domain/            // Business entities and logic
 │       ├── port/              // Interfaces
-│       └── service/           // Business logic
 ├── pkg/
 │   ├── config/                // Configuration
 │   ├── database/              // Database connection
