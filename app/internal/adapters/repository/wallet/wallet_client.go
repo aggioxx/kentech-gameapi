@@ -97,7 +97,14 @@ func (w *WalletClient) CancelTransaction(ctx context.Context, reference string) 
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			w.logger.Errorf("Failed to close response body", "error", err)
+		} else {
+			w.logger.Debug("Response body closed successfully")
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("wallet service returned status: %d", resp.StatusCode)
@@ -138,7 +145,14 @@ func (w *WalletClient) makeRequest(ctx context.Context, endpoint string, userID 
 		w.logger.Errorf("Wallet service request failed", "error", err)
 		return OperationResponse{}, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			w.logger.Errorf("Failed to close response body", "error", err)
+		} else {
+			w.logger.Debug("Response body closed successfully")
+		}
+	}(resp.Body)
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)

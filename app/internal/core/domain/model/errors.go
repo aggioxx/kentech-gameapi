@@ -12,5 +12,4 @@ var (
 	ErrInvalidAmount         = errors.New("invalid amount")
 	ErrTransactionNotPending = errors.New("transaction is not in pending status")
 	ErrUnauthorized          = errors.New("unauthorized")
-	ErrInvalidToken          = errors.New("invalid token")
 )

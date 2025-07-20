@@ -85,7 +85,11 @@ func (s *TransactionService) Deposit(ctx context.Context, userID uuid.UUID, curr
 	walletResp, err := s.walletService.ProcessDeposit(ctx, walletUserID, amount, currency, 0, providerTxID)
 	if err != nil {
 		s.logger.Error("Wallet service deposit failed: " + err.Error())
-		s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
+		err := s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
+		if err != nil {
+			s.logger.Error("Failed to update transaction status to failed: " + err.Error())
+			return nil, err
+		}
 		return nil, err
 	}
 
@@ -188,7 +192,11 @@ func (s *TransactionService) Withdraw(ctx context.Context, userID uuid.UUID, cur
 	walletResp, err := s.walletService.ProcessWithdraw(ctx, walletUserID, amount, currency, 0, providerTxID)
 	if err != nil {
 		s.logger.Error("Wallet service withdraw failed: " + err.Error())
-		s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
+		err := s.txRepo.UpdateStatus(ctx, transaction.ID, model.TransactionStatusFailed)
+		if err != nil {
+			s.logger.Error("Failed to update transaction status to failed: " + err.Error())
+			return nil, err
+		}
 		return nil, err
 	}
 
