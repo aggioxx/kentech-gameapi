@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"kentech-project/pkg/logger"
 	"net/http"
+	"time"
 
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -16,44 +18,64 @@ import (
 type WalletClient struct {
 	baseURL    string
 	httpClient *http.Client
+	logger     *logger.Logger
+	apiKey     string
 }
 
-type WalletRequest struct {
-	UserID uuid.UUID `json:"user_id"`
-	Amount float64   `json:"amount"`
+type DepositRequest struct {
+	Currency     string                      `json:"currency"`
+	Transactions []DepositRequestTransaction `json:"transactions"`
+	UserID       int                         `json:"userId"`
 }
 
-type WalletResponse struct {
+type DepositRequestTransaction struct {
+	Amount    float64 `json:"amount"`
+	BetID     int     `json:"betId"`
+	Reference string  `json:"reference"`
+}
+
+type OperationResponse struct {
+	Balance      string                         `json:"balance"`
+	Transactions []OperationResponseTransaction `json:"transactions"`
+}
+
+type OperationResponseTransaction struct {
+	ID        int    `json:"id"`
 	Reference string `json:"reference"`
-	Success   bool   `json:"success"`
-	Message   string `json:"message"`
 }
 
-func NewWalletClient(baseURL string) *WalletClient {
+type WalletError struct {
+	Message    string `json:"message"`
+	StatusCode int    `json:"-"`
+}
+
+func NewWalletClient(baseURL string, log *logger.Logger, apiKey string) *WalletClient {
 	return &WalletClient{
 		baseURL:    baseURL,
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		logger:     log,
+		apiKey:     apiKey,
 	}
 }
 
-func (w *WalletClient) ProcessDeposit(ctx context.Context, userID uuid.UUID, amount float64) (string, error) {
+func (w *WalletClient) ProcessDeposit(ctx context.Context, userID int, amount float64, currency string, betID int, reference string) (OperationResponse, error) {
 	ctx, span := otel.Tracer("").Start(ctx, "WalletClient.ProcessDeposit", trace.WithAttributes(
-		attribute.String("wallet.endpoint", "/deposit"),
-		attribute.String("wallet.user_id", userID.String()),
+		attribute.String("wallet.endpoint", "/api/v1/deposit"),
+		attribute.Int("wallet.user_id", userID),
 		attribute.Float64("wallet.amount", amount),
 	))
 	defer span.End()
-	return w.makeRequest(ctx, "/deposit", userID, amount)
+	return w.makeRequest(ctx, "/api/v1/deposit", userID, amount, currency, betID, reference)
 }
 
-func (w *WalletClient) ProcessWithdraw(ctx context.Context, userID uuid.UUID, amount float64) (string, error) {
+func (w *WalletClient) ProcessWithdraw(ctx context.Context, userID int, amount float64, currency string, betID int, reference string) (OperationResponse, error) {
 	ctx, span := otel.Tracer("").Start(ctx, "WalletClient.ProcessWithdraw", trace.WithAttributes(
-		attribute.String("wallet.endpoint", "/withdraw"),
-		attribute.String("wallet.user_id", userID.String()),
+		attribute.String("wallet.endpoint", "/api/v1/withdraw"),
+		attribute.Int("wallet.user_id", userID),
 		attribute.Float64("wallet.amount", amount),
 	))
 	defer span.End()
-	return w.makeRequest(ctx, "/withdraw", userID, amount)
+	return w.makeRequest(ctx, "/api/v1/withdraw", userID, amount, currency, betID, reference)
 }
 
 func (w *WalletClient) CancelTransaction(ctx context.Context, reference string) error {
@@ -69,11 +91,20 @@ func (w *WalletClient) CancelTransaction(ctx context.Context, reference string) 
 		return err
 	}
 
+	req.Header.Set("X-API-KEY", w.apiKey)
+
 	resp, err := w.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			w.logger.Errorf("Failed to close response body", "error", err)
+		} else {
+			w.logger.Debug("Response body closed successfully")
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("wallet service returned status: %d", resp.StatusCode)
@@ -82,39 +113,70 @@ func (w *WalletClient) CancelTransaction(ctx context.Context, reference string) 
 	return nil
 }
 
-func (w *WalletClient) makeRequest(ctx context.Context, endpoint string, userID uuid.UUID, amount float64) (string, error) {
-	request := WalletRequest{
-		UserID: userID,
-		Amount: amount,
+func (w *WalletClient) makeRequest(ctx context.Context, endpoint string, userID int, amount float64, currency string, betID int, reference string) (OperationResponse, error) {
+	request := DepositRequest{
+		Currency: currency,
+		UserID:   userID,
+		Transactions: []DepositRequestTransaction{
+			{
+				Amount:    amount,
+				BetID:     betID,
+				Reference: reference,
+			},
+		},
 	}
 
 	jsonData, err := json.Marshal(request)
 	if err != nil {
-		return "", err
+		return OperationResponse{}, err
 	}
 
 	url := fmt.Sprintf("%s%s", w.baseURL, endpoint)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return "", err
+		return OperationResponse{}, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-KEY", w.apiKey)
 
 	resp, err := w.httpClient.Do(req)
 	if err != nil {
-		return "", err
+		w.logger.Errorf("Wallet service request failed", "error", err)
+		return OperationResponse{}, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			w.logger.Errorf("Failed to close response body", "error", err)
+		} else {
+			w.logger.Debug("Response body closed successfully")
+		}
+	}(resp.Body)
 
-	var response WalletResponse
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", err
+	bodyBytes, _ := io.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+
+	if resp.StatusCode != http.StatusOK {
+		w.logger.Errorf("Wallet service returned error",
+			"status", resp.StatusCode,
+			"body", bodyString,
+		)
+		return OperationResponse{}, &WalletError{
+			StatusCode: resp.StatusCode,
+			Message:    bodyString,
+		}
 	}
 
-	if !response.Success {
-		return "", fmt.Errorf("wallet service error: %s", response.Message)
+	var response OperationResponse
+	if err := json.Unmarshal(bodyBytes, &response); err != nil {
+		w.logger.Errorf("Failed to decode wallet response", "error", err, "body", bodyString)
+		return OperationResponse{}, err
 	}
 
-	return response.Reference, nil
+	return response, nil
+}
+
+func (e *WalletError) Error() string {
+	return fmt.Sprintf("wallet error: %s", e.Message)
 }

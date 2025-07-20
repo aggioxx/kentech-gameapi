@@ -1,0 +1,330 @@
+{
+  "info": {
+    "name": "kentech-challenge",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "get-balance",
+      "event": [],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer",
+            "disabled": true,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjAwZmNlNTQtM2Q0NS00YTcyLWIzOGUtOGMwNjA0M2NmNGUxIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTMwMjI3NDgsImlhdCI6MTc1MjkzNjM0OH0.TADB7v19Yjsr1u-9OAc7-E1hR_1gE4-xCrXYZEm0cS4",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/player/balance",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "player",
+            "balance"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "get-user",
+      "event": [],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer",
+            "disabled": true,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjAwZmNlNTQtM2Q0NS00YTcyLWIzOGUtOGMwNjA0M2NmNGUxIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTMwMTkwMjYsImlhdCI6MTc1MjkzMjYyNn0.7-lq1HiNBhKyNOaT4amoHMIqUUoKhYy6D1CR8mB6azc",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/player/profile",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "player",
+            "profile"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "login",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"testpass42342\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "register-new-user",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"test_user\",\n    \"password\": \"testpass42342\"\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "transaction-history",
+      "event": [],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/player/transactions",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "player",
+            "transactions"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "deposit",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_JWT_TOKEN>",
+            "disabled": false,
+            "type": "default"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/transactions/deposit",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "transactions",
+            "deposit"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"USD\",\n  \"amount\": 100.0,\n  \"provider_transaction_id\": \"provider-tx-123\",\n  \"provider_withdrawn_id\": \"provider-wd-456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "withdraw",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_JWT_TOKEN>",
+            "disabled": false,
+            "type": "default"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/transactions/withdraw",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "transactions",
+            "withdraw"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"USD\",\n  \"amount\": 50.0,\n  \"provider_transaction_id\": \"provider-tx-789\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "cancel transaction",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "http://localhost:8080/api/transactions/TRANSACTION_ID/cancel",
+          "protocol": "http",
+          "host": [
+            "localhost:8080"
+          ],
+          "path": [
+            "api",
+            "transactions",
+            "TRANSACTION_ID",
+            "cancel"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    }
+  ],
+  "variable": []
+}

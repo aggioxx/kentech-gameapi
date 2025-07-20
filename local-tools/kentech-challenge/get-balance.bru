@@ -7,9 +7,13 @@ meta {
 get {
   url: http://localhost:8080/api/player/balance
   body: none
-  auth: inherit
+  auth: bearer
 }
 
 headers {
-  ~Authorization: Bearer 
+  ~Authorization: Bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMWNiNDg1MzItMTAwMy00NjJmLWIwM2MtMDcwZjczNDkwMmQ2IiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTMxMjM4NjMsImlhdCI6MTc1MzAzNzQ2M30.VdeXC6gaaDrmLo9hizJLoHvd5PUMXey_rzAMYvs_CW0
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -13,42 +14,43 @@ import (
 	"kentech-project/pkg/config"
 	"kentech-project/pkg/database"
 	"kentech-project/pkg/logger"
-	"kentech-project/pkg/tracing"
+	"kentech-project/pkg/trace"
 )
 
 func main() {
-	// Initialize logger
 	logger := logger.New()
 
-	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Initialize database
 	db, err := database.NewPostgresConnection(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			logger.Errorf("Failed to close database connection", "error", err)
+		} else {
+			logger.Info("Database connection closed")
+		}
+	}(db)
 
-	// Initialize tracing
-	shutdown, err := tracing.InitTracer("kentech-project")
+	shutdown, err := trace.InitTracer("kentech-project")
 	if err != nil {
-		log.Fatalf("Failed to initialize tracing: %v", err)
+		log.Fatalf("Failed to initialize trace: %v", err)
 	}
 	defer shutdown(context.Background())
 
-	// Create and start HTTP server
-	httpServer := server.New(cfg, db, logger)
+	serverInstance := server.NewServer(cfg, db, logger)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Port,
-		Handler: httpServer,
+		Handler: serverInstance.Handler(),
 	}
 
-	// Start server in a goroutine
 	go func() {
 		logger.Info("Starting server on port " + cfg.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -56,7 +58,6 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

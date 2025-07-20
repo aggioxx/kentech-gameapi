@@ -1,13 +1,17 @@
 meta {
-  name: transaction-history
+  name: cancel transaction
   type: http
-  seq: 3
+  seq: 8
 }
 
-get {
-  url: http://localhost:8080/api/player/transactions
+post {
+  url: http://localhost:8080/api/transactions/913a19c8-4244-49be-b304-919ff4837c04/cancel
   body: none
   auth: bearer
+}
+
+headers {
+  ~Authorization: 
 }
 
 auth:bearer {

@@ -1,19 +1,20 @@
 package model
 
 import (
-	"time"
-
 	"github.com/google/uuid"
+	"time"
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"` // Don't include in JSON responses
-	Balance   float64   `json:"balance"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID           uuid.UUID `json:"id"`
+	WalletUserID int       `json:"wallet_user_id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	Password     string    `json:"-"` // Don't include in JSON responses
+	Balance      float64   `json:"balance"`
+	Currency     string    `json:"currency"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type CreateUserRequest struct {

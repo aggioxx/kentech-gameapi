@@ -11,10 +11,11 @@ import (
 // the choice of using godotenv is to allow for easy local development and testing keeping the simplicity of the application in mind.
 // to a more complex configuration (such as per environment and with a lot of options), I would choose to use env.yaml with viper or similar libraries.)
 type Config struct {
-	Port        string
-	DatabaseURL string
-	JWTSecret   string
-	WalletURL   string
+	Port         string
+	DatabaseURL  string
+	JWTSecret    string
+	WalletURL    string
+	WalletAPIKey string
 }
 
 func Load() (*Config, error) {
@@ -26,10 +27,11 @@ func Load() (*Config, error) {
 	}
 
 	cfg := &Config{
-		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://user:password@localhost/kentech_db?sslmode=disable"),
-		JWTSecret:   getEnv("JWT_SECRET", "defaultsecretkey"),
-		WalletURL:   getEnv("WALLET_URL", "http://localhost:9090"),
+		Port:         getEnv("PORT", "8080"),
+		DatabaseURL:  getEnv("DATABASE_URL", "postgres://user:password@localhost/kentech_db?sslmode=disable"),
+		JWTSecret:    getEnv("JWT_SECRET", "defaultsecretkey"),
+		WalletURL:    getEnv("WALLET_URL", "http://localhost:9090"),
+		WalletAPIKey: getEnv("WALLET_API_KEY", "default"),
 	}
 
 	log.Debugf("Config loaded: %+v", cfg)
