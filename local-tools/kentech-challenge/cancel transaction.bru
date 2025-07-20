@@ -1,0 +1,19 @@
+meta {
+  name: cancel transaction
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:8080/api/transactions/913a19c8-4244-49be-b304-919ff4837c04/cancel
+  body: none
+  auth: bearer
+}
+
+headers {
+  ~Authorization: 
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMWNiNDg1MzItMTAwMy00NjJmLWIwM2MtMDcwZjczNDkwMmQ2IiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTMxMjYyODgsImlhdCI6MTc1MzAzOTg4OH0.5-K0Ohnw6Ax_O6U7T0RQ1MrtnT_o1JmiA6atWAxTWiM
+}
