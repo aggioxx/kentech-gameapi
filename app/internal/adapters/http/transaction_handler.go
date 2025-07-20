@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"kentech-project/internal/adapters/repository/wallet"
 	"kentech-project/internal/core/domain/model"
 	"kentech-project/internal/core/domain/service"
 	"kentech-project/pkg/logger"
@@ -30,7 +31,7 @@ func (h *TransactionHandler) DepositGin(c *gin.Context) {
 	var req model.TransactionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Warn("Invalid request body for deposit")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "code": "INVALID_BODY"})
 		return
 	}
 	h.logger.Infof("Processing deposit: user_id=%s, amount=%f", userID.String(), req.Amount)
@@ -44,12 +45,28 @@ func (h *TransactionHandler) DepositGin(c *gin.Context) {
 		req.ProviderWithdrawnID,
 	)
 	if err != nil {
-		if errors.Is(err, model.ErrInvalidAmount) {
+		var walletErr *wallet.WalletError
+		if errors.As(err, &walletErr) {
+			h.logger.Warnf("Wallet error during deposit: %s", walletErr.Message)
+			c.JSON(walletErr.StatusCode, gin.H{
+				"error": walletErr.Message,
+				"code":  "WALLET_ERROR",
+			})
+			return
+		}
+		switch {
+		case errors.Is(err, model.ErrInvalidAmount):
 			h.logger.Warnf("Invalid deposit amount: %f", req.Amount)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+				"code":  "INVALID_AMOUNT",
+			})
+		default:
 			h.logger.Error("Internal error during deposit: " + err.Error())
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal server error",
+				"code":  "INTERNAL_ERROR",
+			})
 		}
 		return
 	}
@@ -64,7 +81,7 @@ func (h *TransactionHandler) WithdrawGin(c *gin.Context) {
 	var req model.TransactionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Warn("Invalid request body for withdraw")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "code": "INVALID_BODY"})
 		return
 	}
 	h.logger.Infof("Processing withdraw: user_id=%s, amount=%f", userID.String(), req.Amount)
@@ -77,16 +94,34 @@ func (h *TransactionHandler) WithdrawGin(c *gin.Context) {
 		req.ProviderTransactionID,
 	)
 	if err != nil {
-		switch err {
-		case model.ErrInvalidAmount:
+		var walletErr *wallet.WalletError
+		if errors.As(err, &walletErr) {
+			h.logger.Warnf("Wallet error during withdraw: %s", walletErr.Message)
+			c.JSON(walletErr.StatusCode, gin.H{
+				"error": walletErr.Message,
+				"code":  "WALLET_ERROR",
+			})
+			return
+		}
+		switch {
+		case errors.Is(err, model.ErrInvalidAmount):
 			h.logger.Warnf("Invalid withdraw amount: %f", req.Amount)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		case model.ErrInsufficientBalance:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+				"code":  "INVALID_AMOUNT",
+			})
+		case errors.Is(err, model.ErrInsufficientBalance):
 			h.logger.Warnf("Insufficient balance for user_id=%s, amount=%f", userID.String(), req.Amount)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+				"code":  "INSUFFICIENT_BALANCE",
+			})
 		default:
 			h.logger.Error("Internal error during withdraw: " + err.Error())
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal server error",
+				"code":  "INTERNAL_ERROR",
+			})
 		}
 		return
 	}

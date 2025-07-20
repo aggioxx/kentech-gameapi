@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"github.com/lib/pq"
 	"kentech-project/internal/core/domain/model"
 	"kentech-project/pkg/logger"
 	"time"
@@ -40,6 +41,10 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 		user.Balance, user.CreatedAt, user.UpdatedAt)
 
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" && pqErr.Constraint == "users_wallet_user_id_key" {
+			r.logger.Warn("No more wallet user IDs available")
+			return model.ErrWalletUserIDExhausted
+		}
 		r.logger.Error("Failed to create user: " + err.Error())
 		return err
 	}

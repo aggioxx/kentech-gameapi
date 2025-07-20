@@ -38,6 +38,11 @@ func (h *AuthHandler) RegisterGin(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
+		if err == model.ErrWalletUserIDExhausted {
+			h.logger.Warn("No more wallet user IDs available for registration")
+			c.JSON(http.StatusConflict, gin.H{"error": "No more wallet user IDs available"})
+			return
+		}
 		h.logger.Error("Internal error during register: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

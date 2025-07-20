@@ -44,6 +44,11 @@ type OperationResponseTransaction struct {
 	Reference string `json:"reference"`
 }
 
+type WalletError struct {
+	Message    string `json:"message"`
+	StatusCode int    `json:"-"`
+}
+
 func NewWalletClient(baseURL string, log *logger.Logger, apiKey string) *WalletClient {
 	return &WalletClient{
 		baseURL:    baseURL,
@@ -143,7 +148,10 @@ func (w *WalletClient) makeRequest(ctx context.Context, endpoint string, userID 
 			"status", resp.StatusCode,
 			"body", bodyString,
 		)
-		return OperationResponse{}, fmt.Errorf("wallet service returned status: %d", resp.StatusCode)
+		return OperationResponse{}, &WalletError{
+			StatusCode: resp.StatusCode,
+			Message:    bodyString,
+		}
 	}
 
 	var response OperationResponse
@@ -153,4 +161,8 @@ func (w *WalletClient) makeRequest(ctx context.Context, endpoint string, userID 
 	}
 
 	return response, nil
+}
+
+func (e *WalletError) Error() string {
+	return fmt.Sprintf("wallet error: %s", e.Message)
 }
